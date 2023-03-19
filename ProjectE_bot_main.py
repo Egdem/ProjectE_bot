@@ -3,7 +3,7 @@ import logging
 from aiogram import Bot, Dispatcher, types, executor
 from aiogram.dispatcher.filters.state import State, StatesGroup
 from aiogram.dispatcher import FSMContext
-from message import start_bot_message,new_task_message
+from message_and_func import start_bot_message,new_task_message, cool_view
 from aiogram.contrib.fsm_storage.memory import MemoryStorage
 import time
 import sqlite3
@@ -21,7 +21,7 @@ storage = MemoryStorage()
 # Объект бота
 bot = Bot(token=TOKEN)
 # Диспетчер
-dp = Dispatcher(bot, storage)
+dp = Dispatcher(bot, storage=MemoryStorage())
 # Подключаем базу данных
 BotData = BotDB('database.db')
 
@@ -65,29 +65,17 @@ async def handle_text(m: types.Message):
     await m.reply('Напишите в чат, новую задачу')
 
 #Ловим овтвет от пользователя
-@dp.message_handler(state=item_types.task)
+@dp.message_handler(content_types=['text'], state=item_types.task)
 
 async def add_task_in_db(m: types.Message, state: FSMContext):
-    # Данные о пользователе
-    user_id = m.from_user.id
-    answer = m.text
-    await state.update_data(task=answer)
-    user_data= await state.get_data()
-    BotData.add_task(user_id, str(user_data))
-    await m.reply(f'Задача {str(m.text)} добавлена')
-    await state.finish()
 
-@dp.message_handler(state = item_types.task)
-async def add_task_in_db(m: types.Message, state = FSMContext):
     # Данные о пользователе
     user_id = m.from_user.id
     answer = m.text
-    await state.update_data(task = answer)
-    await item_types.task.set()
-    data = await state.get_data()
-    BotData.add_task(data)
-    await m.reply('Вы успешно зарегистрированы')
-    await state.reset_state()
+    print(answer)
+    BotData.add_task(user_id, str(answer))
+    await bot.send_message(m.chat.id, f'Задача {str(m.text)} добавлена')
+    await state.finish()
 
 # Обработка команды check_list
 @dp.message_handler(commands=["check_list"])
@@ -95,14 +83,15 @@ async def handle_text(m: types.Message, res=False):
 
     # Данные о пользователе
     user_id = m.from_user.id
+    ch_list = BotData.check_list(user_id)
 
-    await bot.send_message(m.chat.id, 'Вот все Ваши задачи: {}'.format(str(BotData.check_list(user_id))))
+    await bot.send_message(m.chat.id, 'Вот все Ваши задачи: {}'.format(cool_view(ch_list)))
 
-'''
+
 @dp.message_handler(content_types=["text"])
 async def handle_text(m: types.Message, res=False):
     await bot.send_message(m.chat.id, 'Для начала работы с ботом напишите команду /start')
-'''
+
 # Запуск процесса поллинга новых апдейтов
 if __name__ == "__main__":
     executor.start_polling(dp)

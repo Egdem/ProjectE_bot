@@ -20,11 +20,11 @@ class BotDB:
         return result.fetchall()[0]
 
     def add_task(self, user_id, task):
-        self.cursor.execute("INSERT INTO records (user_id, task) VALUES (?, ?)", (self.get_user_id(user_id)), task)
+        self.cursor.execute("INSERT INTO records (user_id, task) VALUES (?, ?)", (user_id, task) )
         return self.conn.commit()
 
     def check_list(self, user_id, within="*"):
-        result = self.cursor.execute("SELECT * FROM records WHERE user_id = ?", self.get_user_id(user_id, ))
+        result = self.cursor.execute("SELECT task FROM records WHERE user_id = ?", (user_id,) )
         return result.fetchall()
 
     def close(self):
