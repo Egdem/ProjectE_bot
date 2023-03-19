@@ -27,7 +27,7 @@ BotData = BotDB('database.db')
 # Создаем класс для машины состояний
 class item_types(StatesGroup):
     task = State()
-    reminder = State()
+    remove_task = State()
 
 
 # Функция, обрабатывающая команду /start
@@ -45,7 +45,7 @@ async def start(m: types.Message, res=False):
     # Все виды кнопок при вводе "/start"
     item_list = types.InlineKeyboardButton(text='/check_list', callback_data='/check_list')
     item_new_reminder = types.InlineKeyboardButton(text='/new_task', callback_data='/new_task')
-    item_new_task = types.InlineKeyboardButton(text='/new_reminder', callback_data='/new_reminder')
+    item_new_task = types.InlineKeyboardButton(text='/remove_task', callback_data='/remove_task')
 
     # Добавляем кнопки в клавиатуру
     markup_inline.add(item_list, item_new_task, item_new_reminder)
@@ -71,6 +71,25 @@ async def add_task_in_db(m: types.Message, state: FSMContext):
     await state.finish()
 
 
+# Обработка команды remove_task
+@dp.message_handler(commands=["remove_task"], state=None)
+async def handle_remove_text(m: types.Message):
+    # Подключение машины состояний
+    await item_types.remove_task.set()
+    await m.reply('Напишите задачу, которую вы хотите удалить')
+
+
+# Ловим овтвет от пользователя
+@dp.message_handler(content_types=['text'], state=item_types.remove_task)
+async def remove_task_in_db(m: types.Message, state: FSMContext):
+    # Данные о пользователе
+    user_id = m.from_user.id
+    answer = m.text
+    BotData.remove_task(user_id, str(answer))
+    await bot.send_message(m.chat.id, 'Задача удалена')
+    await state.finish()
+
+
 # Обработка команды check_list
 @dp.message_handler(commands=["check_list"])
 async def handle_text(m: types.Message, res=False):
@@ -84,6 +103,12 @@ async def handle_text(m: types.Message, res=False):
 @dp.message_handler(content_types=["text"])
 async def handle_text(m: types.Message, res=False):
     await bot.send_message(m.chat.id, 'Для начала работы с ботом напишите команду /start')
+
+
+
+
+
+
 
 
 # Запуск процесса поллинга новых апдейтов

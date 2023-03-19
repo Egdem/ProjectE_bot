@@ -23,6 +23,10 @@ class BotDB:
         self.cursor.execute("INSERT INTO records (user_id, task) VALUES (?, ?)", (user_id, task) )
         return self.conn.commit()
 
+    def remove_task(self, user_id, task):
+        self.cursor.execute("DELETE FROM records WHERE user_id = (?) AND task = (?)", (user_id, task))
+        return self.conn.commit()
+
     def check_list(self, user_id, within="*"):
         result = self.cursor.execute("SELECT task FROM records WHERE user_id = ?", (user_id,) )
         return result.fetchall()
