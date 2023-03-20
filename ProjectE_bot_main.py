@@ -96,19 +96,20 @@ async def handle_text(m: types.Message, res=False):
     # Данные о пользователе
     user_id = m.from_user.id
     ch_list = BotData.check_list(user_id)
-    await bot.send_message(m.chat.id, 'Вот все Ваши задачи: {}'.format(cool_view(ch_list)))
+    await bot.send_message(m.chat.id, 'Вот все Ваши задачи:')
+    new_sp = []
+    for i in range(1, len(ch_list)):
+        new_sp.append(ch_list[i][0])
+    for i in range(len(new_sp)):
+        await bot.send_message(m.chat.id, new_sp[i])
+    new_sp = []
+    # await cool_view(ch_list, m.chat.id, bot)
 
 
 # Обработка не предусмотренных команд и сообщений
 @dp.message_handler(content_types=["text"])
 async def handle_text(m: types.Message, res=False):
     await bot.send_message(m.chat.id, 'Для начала работы с ботом напишите команду /start')
-
-
-
-
-
-
 
 
 # Запуск процесса поллинга новых апдейтов
