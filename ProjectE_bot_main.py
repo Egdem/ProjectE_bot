@@ -71,6 +71,7 @@ async def add_task_in_db(m: types.Message, state: FSMContext):
     await state.finish()
 
 
+'''                                                                 НЕ АКТУАЛЬНЫЙ КОД, МОЖНО УДАЛИТЬ, НО ОСТАВЛЯЮ В КАЧЕСТВЕ ПРИМЕРА
 # Обработка команды remove_task
 @dp.message_handler(commands=["remove_task"], state=None)
 async def handle_remove_text(m: types.Message):
@@ -80,7 +81,7 @@ async def handle_remove_text(m: types.Message):
 
 
 # Ловим овтвет от пользователя
-@dp.message_handler(content_types=['text'], state=item_types.remove_task)
+@dp.message_handler(content_types=['text'], state=item_types.remove_task)       
 async def remove_task_in_db(m: types.Message, state: FSMContext):
     # Данные о пользователе
     user_id = m.from_user.id
@@ -88,6 +89,7 @@ async def remove_task_in_db(m: types.Message, state: FSMContext):
     BotData.remove_task(user_id, str(answer))
     await bot.send_message(m.chat.id, 'Задача удалена')
     await state.finish()
+'''
 
 
 # Обработка команды check_list
@@ -112,7 +114,8 @@ async def process_callback_button1(callback_query: types.CallbackQuery):
     cb_mes = callback_query.message.text
     user_id = callback_query.from_user.id
     BotData.remove_task(user_id, str(cb_mes))
-    await bot.send_message(callback_query.message.chat.id, '✅ Задача удалена')
+    await bot.delete_message(callback_query.message.chat.id, callback_query.message.message_id)
+    await bot.send_message(callback_query.message.chat.id, '✅ Задача выполнена')
 
 
 # Обработка не предусмотренных команд и сообщений
