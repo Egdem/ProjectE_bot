@@ -1,3 +1,0 @@
-1)SQL
-2)Redis
-3)async

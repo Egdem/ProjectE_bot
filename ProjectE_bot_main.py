@@ -44,11 +44,11 @@ async def start(m: types.Message, res=False):
 
     # Все виды кнопок при вводе "/start"
     item_list = types.InlineKeyboardButton(text='/check_list', callback_data='/check_list')
-    item_new_reminder = types.InlineKeyboardButton(text='/new_task', callback_data='/new_task')
-    item_new_task = types.InlineKeyboardButton(text='/remove_task', callback_data='/remove_task')
+    item_new_task = types.InlineKeyboardButton(text='/new_task', callback_data='/new_task')
+
 
     # Добавляем кнопки в клавиатуру
-    markup_inline.add(item_list, item_new_task, item_new_reminder)
+    markup_inline.add(item_list, item_new_task)
     await bot.send_message(m.chat.id, start_bot_message(user_full_name), reply_markup=markup_inline)
 
 
@@ -108,7 +108,7 @@ async def handle_text(message: types.Message, res=False):
         await bot.send_message(message.chat.id, new_sp[i], reply_markup=inline_state)
     new_sp = []
 
-
+# При нажатии inline кнопки "Удалить" call_back запрос
 @dp.callback_query_handler(lambda c: c.data == 'del_message')
 async def process_callback_button1(callback_query: types.CallbackQuery):
     cb_mes = callback_query.message.text
