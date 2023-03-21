@@ -98,10 +98,12 @@ async def handle_text(m: types.Message, res=False):
     ch_list = BotData.check_list(user_id)
     await bot.send_message(m.chat.id, 'Вот все Ваши задачи:')
     new_sp = []
+    inline_del = types.InlineKeyboardButton('Удалить', callback_data='del_message')          #доделать конпку
+    inline_state = types.InlineKeyboardMarkup().add(inline_del)
     for i in range(1, len(ch_list)):
         new_sp.append(ch_list[i][0])
     for i in range(len(new_sp)):
-        await bot.send_message(m.chat.id, new_sp[i])
+        await bot.send_message(m.chat.id, new_sp[i], inline_state)
     new_sp = []
     # await cool_view(ch_list, m.chat.id, bot)
 
