@@ -92,20 +92,27 @@ async def remove_task_in_db(m: types.Message, state: FSMContext):
 
 # Обработка команды check_list
 @dp.message_handler(commands=["check_list"])
-async def handle_text(m: types.Message, res=False):
+async def handle_text(message: types.Message, res=False):
     # Данные о пользователе
-    user_id = m.from_user.id
+    user_id = message.from_user.id
     ch_list = BotData.check_list(user_id)
-    await bot.send_message(m.chat.id, 'Вот все Ваши задачи:')
+    await bot.send_message(message.chat.id, 'Вот все Ваши задачи:')
     new_sp = []
-    inline_del = types.InlineKeyboardButton('Удалить', callback_data='del_message')          #доделать конпку
+    inline_del = types.InlineKeyboardButton('❌ Удалить ❌', callback_data='del_message')  # доделать конпку
     inline_state = types.InlineKeyboardMarkup().add(inline_del)
     for i in range(1, len(ch_list)):
         new_sp.append(ch_list[i][0])
     for i in range(len(new_sp)):
-        await bot.send_message(m.chat.id, new_sp[i], inline_state)
+        await bot.send_message(message.chat.id, new_sp[i], reply_markup=inline_state)
     new_sp = []
-    # await cool_view(ch_list, m.chat.id, bot)
+
+
+@dp.callback_query_handler(lambda c: c.data == 'del_message')
+async def process_callback_button1(callback_query: types.CallbackQuery):
+    cb_mes = callback_query.message.text
+    user_id = callback_query.from_user.id
+    BotData.remove_task(user_id, str(cb_mes))
+    await bot.send_message(callback_query.message.chat.id, '✅ Задача удалена')
 
 
 # Обработка не предусмотренных команд и сообщений
